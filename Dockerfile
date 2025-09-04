@@ -9,8 +9,7 @@ ARG OSCAM_VERSION
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="saarg"
 
-ENV \
-  MAKEFLAGS="-j4"
+ENV MAKEFLAGS="-j4"
 
 RUN \
   echo "**** install build packages ****" && \
@@ -59,12 +58,12 @@ RUN \
     NO_PLUS_TARGET=1 \
     OSCAM_BIN=/usr/bin/oscam \
     pcsc-libusb && \
-  echo "**** fix broken permissions from pcscd install ****" && \
+  echo "**** fix PCSC permissions ****" && \
   chown root:root \
     /usr/sbin/pcscd && \
   chmod 755 \
     /usr/sbin/pcscd && \
-  echo "**** install PCSC drivers from Linuxserver S3 due to Cloudflare blocking curl download from source (original file at https://www3.hidglobal.com/sites/default/files/drivers/ifdokccid_linux_x86_64-v4.2.8.tar.gz) ****" && \
+  echo "**** install PCSC drivers (Linuxserver S3 mirror) ****" && \
   mkdir -p \
     /tmp/omnikey && \
   curl -o \
@@ -86,8 +85,9 @@ RUN \
   rm -rf \
     /tmp/*
 
-# copy local files
+# Copy local files and fix permissions for s6-init scripts
 COPY root/ /
+RUN find /etc/s6-overlay/s6-rc.d/ -type f \( -name run -o -name finish \) -exec chmod 755 {} +
 
 # Ports and volumes
 EXPOSE 8000
