@@ -90,6 +90,6 @@ RUN \
 COPY root/ /
 
 # Ports and volumes
-EXPOSE 8888
+EXPOSE 8000
 
 VOLUME /config
